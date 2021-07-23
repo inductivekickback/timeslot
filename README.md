@@ -5,6 +5,8 @@ This wrapper is intended to simplify the [Timeslot interface](https://developer.
 
 The timeslot_config struct and timeslot_cb structs are required.
 ```
+#include <timeslot.h>
+...
 static void timeslot_err_cb(int err)
 {
     LOG_ERR("Timeslot session error: %d", err);
