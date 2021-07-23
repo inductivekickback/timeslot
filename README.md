@@ -1,2 +1,1 @@
-# MPSL timeslot interface wrapper
-A wrapper that simplifies working with the MPSL timeslot interface in NCS
+This wrapper is intended to simplify the [Timeslot interface](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/mpsl/doc/timeslot.html) that is built into the [MPSL](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/mpsl/README.html) in Nordic's [nRF Connect SDK](https://github.com/nrfconnect/sdk-nrf).
