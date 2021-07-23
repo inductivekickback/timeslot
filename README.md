@@ -1,4 +1,4 @@
-This wrapper is intended to simplify the [Timeslot interface](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/mpsl/doc/timeslot.html) that is built into the [MPSL](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/mpsl/README.html) in Nordic's [nRF Connect SDK](https://github.com/nrfconnect/sdk-nrf).
+This wrapper is intended to simplify the [Timeslot interface](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/mpsl/doc/timeslot.html) that is built into the [MPSL](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/mpsl/README.html) in Nordic's [nRF Connect SDK](https://github.com/nrfconnect/sdk-nrf). If a library like [ESB](http://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.6.0/nrf/ug_esb.html) is going to be used then a preprocessor symbol called TIMESLOT_CALLS_RADIO_IRQHANDLER can be set to wire RADIO_IRQHandler directly to the MPSL's MPSL_TIMESLOT_SIGNAL_RADIO. A "skipped" callback is also provided so proprietary networks can stay in sync when timeslots are blocked or cancelled. 
 
 ---
 ### Usage
@@ -73,7 +73,7 @@ static void conn_param_update(struct bt_conn *conn, uint16_t interval, uint16_t 
         LOG_ERR("timeslot_start failed (err=%d)", err);
     }
 ```
-If the connection parameters change during the connection then the current timeslots can be stopped so they can be restarted in the stopped callback.
+If the connection parameters change during the connection then the current timeslots can be stopped so they can be restarted in the "stopped" callback.
 ```
 next_interval = interval;
 int err = timeslot_stop();
