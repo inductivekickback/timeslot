@@ -19,7 +19,9 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #if TS_GPIO_DEBUG
 #include <hal/nrf_gpio.h>
-#define TIMESLOT_PIN 4
+#define TIMESLOT_OPEN_PIN       4
+#define TIMESLOT_BLOCKED_PIN    28
+#define TIMESLOT_CANCELLED_PIN  29
 #endif
 
 #include <timeslot.h>
@@ -92,7 +94,7 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
         }
 
 #if TS_GPIO_DEBUG
-        nrf_gpio_pin_write(TIMESLOT_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
 #endif
 
         /* TIMER0 is pre-configured for 1MHz mode by the MPSL. */
@@ -104,7 +106,7 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 
     case MPSL_TIMESLOT_SIGNAL_TIMER0:
 #if TS_GPIO_DEBUG
-        nrf_gpio_pin_write(TIMESLOT_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
 #endif
         if (timeslot_stopping) {
             return &action_end;
@@ -127,8 +129,8 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 
     case MPSL_TIMESLOT_SIGNAL_BLOCKED:
 #if TS_GPIO_DEBUG
-        nrf_gpio_pin_write(TIMESLOT_PIN, 1);
-        nrf_gpio_pin_write(TIMESLOT_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_BLOCKED_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_BLOCKED_PIN, 0);
 #endif
         if (timeslot_stopping) {
             return &action_end;
@@ -138,10 +140,8 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 
     case MPSL_TIMESLOT_SIGNAL_CANCELLED:
 #if TS_GPIO_DEBUG
-        nrf_gpio_pin_write(TIMESLOT_PIN, 1);
-        nrf_gpio_pin_write(TIMESLOT_PIN, 0);
-        nrf_gpio_pin_write(TIMESLOT_PIN, 1);
-        nrf_gpio_pin_write(TIMESLOT_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_CANCELLED_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_CANCELLED_PIN, 0);
 #endif
         if (timeslot_stopping) {
             return &action_end;
@@ -235,8 +235,12 @@ int timeslot_open(struct timeslot_config *p_config, struct timeslot_cb *p_cb)
     }
 
 #if TS_GPIO_DEBUG
-    nrf_gpio_cfg_output(TIMESLOT_PIN);
-    nrf_gpio_pin_clear(TIMESLOT_PIN);
+    nrf_gpio_cfg_output(TIMESLOT_OPEN_PIN);
+    nrf_gpio_cfg_output(TIMESLOT_BLOCKED_PIN);
+    nrf_gpio_cfg_output(TIMESLOT_CANCELLED_PIN);
+    nrf_gpio_pin_clear(TIMESLOT_OPEN_PIN);
+    nrf_gpio_pin_clear(TIMESLOT_BLOCKED_PIN);
+    nrf_gpio_pin_clear(TIMESLOT_CANCELLED_PIN);
 #endif
 
     session_open = true;
