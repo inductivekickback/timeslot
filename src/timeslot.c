@@ -21,7 +21,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <hal/nrf_gpio.h>
 #define TIMESLOT_OPEN_PIN       4
 #define TIMESLOT_BLOCKED_PIN    28
-#define TIMESLOT_CANCELLED_PIN  29
+#define TIMESLOT_CANCELLED_PIN  30
 #endif
 
 #include <timeslot.h>
@@ -130,7 +130,6 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
     case MPSL_TIMESLOT_SIGNAL_BLOCKED:
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_BLOCKED_PIN, 1);
-        nrf_gpio_pin_write(TIMESLOT_BLOCKED_PIN, 0);
 #endif
         if (timeslot_stopping) {
             return &action_end;
@@ -141,7 +140,6 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
     case MPSL_TIMESLOT_SIGNAL_CANCELLED:
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_CANCELLED_PIN, 1);
-        nrf_gpio_pin_write(TIMESLOT_CANCELLED_PIN, 0);
 #endif
         if (timeslot_stopping) {
             return &action_end;
@@ -272,6 +270,10 @@ static void timeslot_thread_fn(void)
 #endif
 
         case SIGNAL_CODE_BLOCKED_CANCELLED:
+#if TS_GPIO_DEBUG
+            nrf_gpio_pin_write(TIMESLOT_BLOCKED_PIN,   0);
+            nrf_gpio_pin_write(TIMESLOT_CANCELLED_PIN, 0);
+#endif
             blocked_cancelled_count++;
             if (blocked_cancelled_count > p_timeslot_config->skipped_tolerance) {
                 if (timeslot_anchored) {
