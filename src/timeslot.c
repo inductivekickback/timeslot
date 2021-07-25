@@ -89,13 +89,21 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 {
     switch (signal) {
     case MPSL_TIMESLOT_SIGNAL_START:
-        if (timeslot_stopping) {
-            return &action_end;
-        }
-
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
 #endif
+        if (timeslot_stopping) {
+#if TS_GPIO_DEBUG
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+            nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+#endif
+            return &action_end;
+        }
 
         /* TIMER0 is pre-configured for 1MHz mode by the MPSL. */
         NRF_TIMER0->INTENSET = (TIMER_INTENSET_COMPARE0_Set << TIMER_INTENSET_COMPARE0_Pos);
@@ -131,9 +139,6 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_BLOCKED_PIN, 1);
 #endif
-        if (timeslot_stopping) {
-            return &action_end;
-        }
         k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_BLOCKED_CANCELLED);
         break;
 
@@ -141,9 +146,6 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_CANCELLED_PIN, 1);
 #endif
-        if (timeslot_stopping) {
-            return &action_end;
-        }
         k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_BLOCKED_CANCELLED);
         break;
 
@@ -245,6 +247,16 @@ int timeslot_open(struct timeslot_config *p_config, struct timeslot_cb *p_cb)
     return 0;
 }
 
+static void timeslot_stopped(void) {
+#if TS_GPIO_DEBUG
+    nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+#endif
+    timeslot_stopping = false;
+    timeslot_started  = false;
+    timeslot_anchored = false;
+    p_timeslot_callbacks->stopped();
+}
+
 static void timeslot_thread_fn(void)
 {
     int err;
@@ -283,6 +295,10 @@ static void timeslot_thread_fn(void)
                 }
                 return;
             }
+            if (timeslot_stopping) {
+                timeslot_stopped();
+                break;
+            }
             if (timeslot_anchored) {
                 request_normal.params.normal.distance_us = 
                         (conn_interval_us * (blocked_cancelled_count + 1));
@@ -301,10 +317,7 @@ static void timeslot_thread_fn(void)
 
         case SIGNAL_CODE_IDLE:
             if (timeslot_stopping) {
-                timeslot_stopping = false;
-                timeslot_started  = false;
-                timeslot_anchored = false;
-                p_timeslot_callbacks->stopped();
+                timeslot_stopped();
             } else {
                 /* Session ended unexpectedly */
                 p_timeslot_callbacks->error(-TIMESLOT_ERROR_INTERNAL);

@@ -68,7 +68,7 @@ struct timeslot_config {
     .hfclk             = MPSL_TIMESLOT_HFCLK_CFG_XTAL_GUARANTEED, \
     .timeout_us        = 2000000, /* Default is 2s. */            \
     .safety_margin_us  = 100, /* Default is 100us */              \
-    .skipped_tolerance = 25 /* Default is 25 */                   \
+    .skipped_tolerance = 5 /* Default is 5 */                   \
 }
 
 struct timeslot_cb {
