@@ -116,10 +116,10 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
 #endif
+        k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_TIMER0);
         if (timeslot_stopping) {
             return &action_end;
         }
-        k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_TIMER0);
         request_normal.params.normal.distance_us = conn_interval_us;
         request_normal.params.normal.priority    = MPSL_TIMESLOT_PRIORITY_NORMAL;
         return &action_request_normal;
