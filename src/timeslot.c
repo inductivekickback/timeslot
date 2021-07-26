@@ -19,15 +19,15 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #if TS_GPIO_DEBUG
 #include <hal/nrf_gpio.h>
-#define TIMESLOT_OPEN_PIN       4
-#define TIMESLOT_BLOCKED_PIN    28
-#define TIMESLOT_CANCELLED_PIN  30
+#define TIMESLOT_OPEN_PIN          4
+#define TIMESLOT_BLOCKED_PIN       28
+#define TIMESLOT_CANCELLED_PIN     30
 #endif
 
 #include <timeslot.h>
 
-#define PROPRIETARY_RF_THREAD_STACK_SIZE 768
-#define PROPRIETARY_RF_THREAD_PRIORITY   5
+#define TIMESLOT_THREAD_STACK_SIZE 1024
+#define TIMESLOT_THREAD_PRIORITY   5
 
 enum SIGNAL_CODE
 {
@@ -344,6 +344,6 @@ static void timeslot_thread_fn(void)
     }
 }
 
-K_THREAD_DEFINE(timeslot_thread, PROPRIETARY_RF_THREAD_STACK_SIZE,
+K_THREAD_DEFINE(timeslot_thread, TIMESLOT_THREAD_STACK_SIZE,
                     timeslot_thread_fn, NULL, NULL, NULL,
-                    K_PRIO_COOP(PROPRIETARY_RF_THREAD_PRIORITY), 0, 0);
+                    K_PRIO_COOP(TIMESLOT_THREAD_PRIORITY), 0, 0);
