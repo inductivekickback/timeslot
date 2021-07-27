@@ -26,7 +26,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #include <timeslot.h>
 
-#define TIMESLOT_THREAD_STACK_SIZE 1024
+#define TIMESLOT_THREAD_STACK_SIZE 768
 #define TIMESLOT_THREAD_PRIORITY   5
 
 enum SIGNAL_CODE
@@ -106,8 +106,8 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
         }
 
         /* TIMER0 is pre-configured for 1MHz mode by the MPSL. */
-        NRF_TIMER0->INTENSET = (TIMER_INTENSET_COMPARE0_Set << TIMER_INTENSET_COMPARE0_Pos);
         NRF_TIMER0->CC[0]    = (ts_len_us - p_timeslot_config->safety_margin_us);
+        NRF_TIMER0->INTENSET = (TIMER_INTENSET_COMPARE0_Set<<TIMER_INTENSET_COMPARE0_Pos);
         NVIC_EnableIRQ(TIMER0_IRQn);
         k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_START);
         break;
@@ -115,7 +115,20 @@ mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
     case MPSL_TIMESLOT_SIGNAL_TIMER0:
 #if TS_GPIO_DEBUG
         nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 1);
+        nrf_gpio_pin_write(TIMESLOT_OPEN_PIN, 0);
 #endif
+        NRF_TIMER0->TASKS_STOP = 1;
         k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_TIMER0);
         if (timeslot_stopping) {
             return &action_end;
@@ -293,7 +306,7 @@ static void timeslot_thread_fn(void)
                 } else {
                     p_timeslot_callbacks->error(-TIMESLOT_ERROR_ANCHOR_FAILED);
                 }
-                return;
+                break;
             }
             if (timeslot_stopping) {
                 timeslot_stopped();
