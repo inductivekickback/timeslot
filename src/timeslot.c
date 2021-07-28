@@ -206,7 +206,6 @@ static void radio_notify_cb(const void *context)
         nrf_gpio_pin_set(RADIO_NOTIFICATION_PIN);
         nrf_gpio_pin_clear(RADIO_NOTIFICATION_PIN);
 #endif
-        // TODO: If there is an active request then don't request again.
         k_poll_signal_raise(&timeslot_sig, SIGNAL_CODE_RNH_ACTIVE);
     }
 }
