@@ -35,7 +35,6 @@ static void timeslot_skipped_cb(uint8_t count)
 static void timeslot_stopped_cb(void)
 {
     LOG_INF("Timeslot stopped");
-    timeslots_start(next_interval);
 }
 
 #if !TIMESLOT_CALLS_RADIO_IRQHANDLER
