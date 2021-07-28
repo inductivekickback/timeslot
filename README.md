@@ -63,12 +63,10 @@ void main(void)
 ```
 A good place to start requesting timeslots is after the BLE connection parameters have settled.
 ```
-#define CI_TO_US(ci_ms) ((ci_ms) * 1250)
-...
 static void conn_param_update(struct bt_conn *conn, uint16_t interval, uint16_t latency, uint16_t timeout)
 {
 ...
-    int err = timeslot_start(500, CI_TO_US(interval));
+    int err = timeslot_start(500);
     if (err) {
         LOG_ERR("timeslot_start failed (err=%d)", err);
     }
