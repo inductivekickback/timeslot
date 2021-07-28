@@ -13,6 +13,19 @@ extern "C" {
 
 #include <mpsl_timeslot.h>
 
+#define TS_LEN_US               5000
+#define RNH_DISTANCE_US         800
+#define TS_REQUEST_DELAY_US     1900
+#define TS_REQUEST_TOLERANCE_US 300
+
+/**
+ * A hardware interrupt vector to use with the Radio Notification feature as well as lowering
+ * the priority of the MPSL callback (Zero Latency IRQ workaround).
+ */
+#define TIMESLOT_IRQN          QDEC_IRQn
+#define TIMESLOT_IRQ_NODELABEL qdec
+#define TIMESLOT_IRQ_PRIO      5
+
 /**
  * If TIMESLOT_CALLS_RADIO_IRQHANDLER is set then RADIO_IRQHandler() will be called
  * directly instead of executing the radio_irq callback.
@@ -22,12 +35,10 @@ extern "C" {
 enum TIMESLOT_ERROR
 {
     /**
-     * Could not anchor the timeslot using an "earliest" request. len_us is probably
+     * Could not get a granted timeslot using an "earliest" request. len_us is probably
      * too long for the current Connection Interval.
      */
-    TIMESLOT_ERROR_ANCHOR_FAILED = 95,
-    /** The timeslot opened at least once but was then cancelled skipped_tolerance times. */
-    TIMESLOT_ERROR_CANCELLED = 94,
+    TIMESLOT_ERROR_REQUESTS_FAILED = 94,
     /** The MPSL complained because the timeslot did not close on time. */
     TIMESLOT_ERROR_OVERSTAYED = 93,
     /** Something unexpected happened. */
@@ -123,7 +134,6 @@ int timeslot_open(struct timeslot_config *p_config, struct timeslot_cb *p_cb);
 /** @brief Request a recurring timeslot of len_us based on the given interval
  * 
  * @param[in] len_us      Usable length will be minus safety_margin_us
- * @param[in] interval_us Distance between timeslots
  * 
  * @retval 0                                        Success
  * @retval -TIMESLOT_ERROR_TIMESLOT_ALREADY_STARTED The session is already open
@@ -131,7 +141,7 @@ int timeslot_open(struct timeslot_config *p_config, struct timeslot_cb *p_cb);
  * @retval -NRF_ENOENT                              The session is not open
  * @retval -NRF_EAGAIN                              The session is not IDLE
  */
-int timeslot_start(uint32_t len_us, uint32_t interval_us);
+int timeslot_start(uint32_t len_us);
 
 /** @brief Stop requesting the recurring timeslot and allow the session to go idle
  *
