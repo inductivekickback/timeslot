@@ -13,24 +13,25 @@ extern "C" {
 
 #include <mpsl_timeslot.h>
 
-#define TS_LEN_US               5000
+#define TS_LEN_US               25000
 #define RNH_DISTANCE_US         800
 #define TS_REQUEST_DELAY_US     1900
 #define TS_REQUEST_TOLERANCE_US 300
 
 /**
- * A hardware interrupt vector to use with the Radio Notification feature as well as lowering
- * the priority of the MPSL callback (Zero Latency IRQ workaround).
+ * A hardware interrupt vector to use with the Radio Notification feature as well as lowering the
+ * priority of the MPSL callback (Zero Latency IRQ workaround). As of NCS v1.6.0 this doesn't
+ * handle MPSL_TIMESLOT_SIGNAL_TIMER0 signals correctly unless it uses priority 4 or higher.
  */
 #define TIMESLOT_IRQN          QDEC_IRQn
 #define TIMESLOT_IRQ_NODELABEL qdec
-#define TIMESLOT_IRQ_PRIO      5
+#define TIMESLOT_IRQ_PRIO      4
 
 /**
  * If TIMESLOT_CALLS_RADIO_IRQHANDLER is set then RADIO_IRQHandler() will be called
  * directly instead of executing the radio_irq callback.
  */
-#define TIMESLOT_CALLS_RADIO_IRQHANDLER 0
+#define TIMESLOT_CALLS_RADIO_IRQHANDLER 1
 
 enum TIMESLOT_ERROR
 {

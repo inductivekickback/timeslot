@@ -46,10 +46,6 @@ enum SIGNAL_CODE
     SIGNAL_CODE_UNEXPECTED        = 0x07
 };
 
-#if TIMESLOT_CALLS_RADIO_IRQHANDLER
-void RADIO_IRQHandler(void);
-#endif
-
 static uint32_t                ts_len_us;
 static uint8_t                 blocked_cancelled_count;
 static bool                    session_open;
@@ -84,6 +80,10 @@ static mpsl_timeslot_signal_return_param_t action_none = {
 static mpsl_timeslot_signal_return_param_t action_end = {
     .callback_action = MPSL_TIMESLOT_SIGNAL_ACTION_END
 };
+
+#if TIMESLOT_CALLS_RADIO_IRQHANDLER
+void RADIO_IRQHandler(void);
+#endif
 
 static mpsl_timeslot_signal_return_param_t*
 mpsl_cb(mpsl_timeslot_session_id_t session_id, uint32_t signal)
