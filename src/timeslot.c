@@ -334,6 +334,7 @@ static void timeslot_thread_fn(void)
 #endif
             blocked_cancelled_count++;
             if (blocked_cancelled_count > p_timeslot_config->skipped_tolerance) {
+                blocked_cancelled_count = 0;
                 p_timeslot_callbacks->error(-TIMESLOT_ERROR_REQUESTS_FAILED);
                 break;
             }
