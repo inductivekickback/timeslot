@@ -29,6 +29,12 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #include <timeslot.h>
 
+/* The radio notification distance in microseconds */
+#define TS_RNH_DISTANCE_US         800
+
+/* The (empirical) distance between a request and the resulting timeslot start */
+#define TS_REQUEST_DELAY_US        2600
+
 #define TIMESLOT_THREAD_STACK_SIZE 768
 #define TIMESLOT_THREAD_PRIORITY   5
 
@@ -373,7 +379,8 @@ static void timeslot_thread_fn(void)
 #if TS_GPIO_DEBUG
             nrf_gpio_pin_write(REQUEST_PIN, 1);
 #endif
-            k_sleep(K_USEC(CONFIG_SDC_MAX_CONN_EVENT_LEN_DEFAULT-TS_REQUEST_DELAY_US+RNH_DISTANCE_US));
+            k_sleep(K_USEC(CONFIG_SDC_MAX_CONN_EVENT_LEN_DEFAULT -
+                               TS_REQUEST_DELAY_US + TS_RNH_DISTANCE_US));
 #if TS_GPIO_DEBUG
             nrf_gpio_pin_write(REQUEST_PIN, 0);
 #endif
